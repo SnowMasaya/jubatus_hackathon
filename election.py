@@ -7,6 +7,10 @@ import json
 from jubatus.classifier.client import Classifier
 from jubatus.classifier.types import LabeledDatum
 from jubatus.common import Datum
+from sklearn.cross_validation import train_test_split
+import numpy
+from itertools import izip
+
 
 def parse_args():
     from optparse import OptionParser, OptionValueError
@@ -33,6 +37,27 @@ def get_most_likely(estm):
             result[1] = prob
     return result
 
+def cross_validation_python():
+    train_data = numpy.array([])
+    train_label = numpy.array([])
+    test_data = numpy.array([])
+    test_label = numpy.array([])
+    x_vector = []
+    y_vector = []
+    first_flag = 1 
+    for line in open('election_data.json'):
+        label, dat = line[:-1].split('\t')
+        y_vector.append(label)
+        x_vector = numpy.array(dat)
+        if first_flag == 1:
+            train_data = numpy.hstack((train_data, x_vector))
+            train_label = numpy.array(y_vector)
+            first_flag = 0
+        else:
+            train_data = numpy.vstack((train_data, x_vector))
+            train_label = numpy.array(y_vector)
+    train_list = [train_data, train_label]
+    return train_list
 
 
 if __name__ == '__main__':
@@ -43,10 +68,12 @@ if __name__ == '__main__':
     print(classifier.get_config())
     print(classifier.get_status())
 
+    train_list = cross_validation_python()
+    data_train, data_test, label_train, label_test = train_test_split(train_list[0], train_list[1])
 
-    for line in open('election_data.json'):
-        label, dat = line[:-1].split('\t')
-        data_dict = json.loads(dat)
+    for label, dat in izip(label_train, data_train):
+        print(dat[0])
+        data_dict = json.loads(dat[0])
         datum = Datum(data_dict)
         classifier.train([LabeledDatum(label, datum)])
 
@@ -60,9 +87,8 @@ if __name__ == '__main__':
 
     count_ok = 0
     count_ng = 0
-    for line in open('election_data.json'):
-        label, dat = line[:-1].split('\t')
-        data_dict = json.loads(dat)
+    for label, dat in izip(label_test, data_test):
+        data_dict = json.loads(dat[0])
         datum = Datum(data_dict)
         ans = classifier.classify([datum])
         if ans != None:
