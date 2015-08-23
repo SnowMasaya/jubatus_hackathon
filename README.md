@@ -2,17 +2,13 @@ Jubatus Tutorial in Python
 ==========================
 
 * Jubatus Python Client is required for this tutorial (`pip install jubatus`).
-* For details, see [Quick Start](http://jubat.us/en/quickstart.html) and [Tutorial](http://jubat.us/en/tutorial.html).
 
 Brief Usage
 -----------
 
 ```
-$ wget http://qwone.com/~jason/20Newsgroups/20news-bydate.tar.gz
-$ tar -xvzf 20news-bydate.tar.gz
-
-$ jubaclassifier --name tutorial --configpath config.json
-$ python tutorial.py
+$ jubaclassifier --configpath pa.json 
+$ python election.py
 ```
 
 Note

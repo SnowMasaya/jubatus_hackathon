@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys,json
+import json
 
 from jubatus.classifier.client import Classifier
 from jubatus.classifier.types import LabeledDatum
@@ -43,10 +44,10 @@ if __name__ == '__main__':
     print(classifier.get_status())
 
 
-    for line in open('train.dat'):
-        label, file = line[:-1].split(',')
-        dat = open(file, 'rb').read()
-        datum = Datum({"message": str(dat)})
+    for line in open('election_data.json'):
+        label, dat = line[:-1].split('\t')
+        data_dict = json.loads(dat)
+        datum = Datum(data_dict)
         classifier.train([LabeledDatum(label, datum)])
 
     print(classifier.get_status())
@@ -59,10 +60,10 @@ if __name__ == '__main__':
 
     count_ok = 0
     count_ng = 0
-    for line in open('test.dat'):
-        label, file = line[:-1].split(',')
-        dat = open(file, 'rb').read()
-        datum = Datum({"message": str(dat)})
+    for line in open('election_data.json'):
+        label, dat = line[:-1].split('\t')
+        data_dict = json.loads(dat)
+        datum = Datum(data_dict)
         ans = classifier.classify([datum])
         if ans != None:
             estm = get_most_likely(ans[0])

@@ -1,0 +1,20 @@
+{
+  "converter" : {
+    "string_filter_types" : {},
+    "string_filter_rules" : [],
+    "num_filter_types" : {},
+    "num_filter_rules" : [],
+    "string_types" : {},
+    "string_rules" : [
+      { "key" : "*", "type" : "str", "sample_weight" : "bin", "global_weight" : "bin" }
+    ],
+    "num_types" : {},
+	"num_filter_types" : {
+    "zero_to_hundred": { "method": "linear_normalization", "min": "0", "max":"100" }
+},
+	"num_filter_rules" : [
+    {"key" : "*", "type": "zero_to_hundred", "suffix": "linear_normalized" }
+    ]
+  },
+  "method" : "PA"
+}
