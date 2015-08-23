@@ -4,8 +4,7 @@
 import sys,json
 import json
 
-from jubatus.regression.client import Regression
-from jubatus.regression.types import *
+from jubatus.classifier.client import Classifier
 from jubatus.classifier.types import LabeledDatum
 from jubatus.common import Datum
 from sklearn.cross_validation import train_test_split
@@ -46,7 +45,7 @@ def cross_validation_python():
     x_vector = []
     y_vector = []
     first_flag = 1 
-    for line in open('election_data_regression.json'):
+    for line in open('election_data.json'):
         label, dat = line[:-1].split('\t')
         y_vector.append(label)
         x_vector = numpy.array(dat)
@@ -64,43 +63,39 @@ def cross_validation_python():
 if __name__ == '__main__':
     options, remainder = parse_args()
 
-    client = Regression(options.server_ip, options.server_port, '')
+    classifier = Classifier(options.server_ip,options.server_port, options.name, 10.0)
 
-    print(client.get_config())
-    print(client.get_status())
 
     train_list = cross_validation_python()
     data_train, data_test, label_train, label_test = train_test_split(train_list[0], train_list[1])
 
     for label, dat in izip(label_train, data_train):
-        print(dat[0])
         data_dict = json.loads(dat[0])
         datum = Datum(data_dict)
-        client.train([[float(label), datum]])
+        classifier.train([LabeledDatum(label, datum)])
 
-    print(client.get_status())
 
-    print(client.save("tutorial_regression"))
 
-    print(client.load("tutorial_regression"))
 
-    print(client.get_config())
 
     count_ok = 0
     count_ng = 0
-    for label, dat in izip(label_test, data_test):
-        data_dict = json.loads(dat[0])
+    #for label, dat in izip(label_test, data_test):
+    for line in open('j_c_2015.json'):
+        label, dat = line[:-1].split('\t')
+        data_dict = json.loads(dat)
         datum = Datum(data_dict)
-        ans = client.estimate([datum])
-        print(ans)
+        ans = classifier.classify([datum])
         if ans != None:
-            if (float(label) == ans[0]):
+            estm = get_most_likely(ans[0])
+            if (estm[0] == "1"):
                 result = "OK"
+                print(dat)
+                print(result + "," + label + ", " + estm[0] + ", " + str(estm[1]))
                 count_ok += 1
             else:
                 result = "NG"
                 count_ng += 1
-            print(result + "," + label + ", " + str(ans[0]) )
     print("===================")
     print("OK: {0}".format(count_ok))
     print("NG: {0}".format(count_ng))
